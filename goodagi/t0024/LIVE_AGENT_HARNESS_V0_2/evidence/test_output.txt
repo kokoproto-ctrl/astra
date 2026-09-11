@@ -1,0 +1,18 @@
+✔ principal and task binding fail closed (12.9866ms)
+✔ budget is charged once and valid replay is free (0.8535ms)
+✔ scope changed replay is denied (0.5619ms)
+✔ reserved namespace denied (0.4685ms)
+✔ stale policy denied (0.4312ms)
+✔ malformed denied (0.3731ms)
+✔ unauthorized action denied (3.6477ms)
+✔ budget exhaustion denied (1.4794ms)
+✔ three principals may share client-visible effect id without collision (16.0936ms)
+✔ duplicate retry storm has one commit (7.0642ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 416.666
