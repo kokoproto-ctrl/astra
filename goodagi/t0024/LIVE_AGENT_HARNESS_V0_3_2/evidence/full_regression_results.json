@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-11T12:20:54.938Z",
+  "timestamp": "2026-09-11T13:07:18.354Z",
   "command": "node --test tests/*.test.mjs",
-  "registered": 98,
-  "executed": 98,
-  "passed": 98,
+  "registered": 99,
+  "executed": 99,
+  "passed": 99,
   "failed": 0,
   "exit_code": 0,
   "test_names": [
@@ -50,6 +50,7 @@
     "budget exhaustion denied",
     "in-process principal namespaces isolate one visible effect id",
     "in-process retry semantics have one commit",
+    "mocked three-agent runner is sequential, identity-bound, and principal-isolated",
     "mocked Ollama compatibility 24/24",
     "uses the localhost Ollama chat endpoint",
     "rejects a non-local Ollama endpoint",
