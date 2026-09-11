@@ -1,0 +1,9 @@
+{
+  "test_runner": "node --test tests/*.test.mjs",
+  "tests_total": 10,
+  "tests_passed": 10,
+  "tests_failed": 0,
+  "status": "PASS_LOCAL",
+  "coverage": ["principal isolation", "task binding", "budget", "idempotency", "replay", "scope validation", "stale policy", "malformed request", "unauthorized action", "concurrent duplicate retry", "cross-principal effect-id isolation"],
+  "live_llm_precondition": "PASS_LOCAL_ONLY; live model run remains blocked"
+}

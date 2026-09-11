@@ -1,0 +1,1 @@
+{"ollama_version":"0.34.0","endpoint":"127.0.0.1:11434","model":"qwen3:0.6b","model_digest":"7df6b6e09427","model_size":"522 MB","inference_mode":"CPU permitted; no CUDA requirement","num_ctx":2048,"max_output_tokens":128,"concurrent_model_calls":1,"external_provider":false}
