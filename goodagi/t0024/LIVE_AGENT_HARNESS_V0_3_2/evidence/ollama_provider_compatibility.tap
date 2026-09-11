@@ -1,0 +1,32 @@
+✔ uses the localhost Ollama chat endpoint (1.7889ms)
+✔ rejects a non-local Ollama endpoint (0.6682ms)
+✔ sends non-streaming requests (0.643ms)
+✔ disables Ollama thinking in requests (0.3388ms)
+✔ sends the proposal schema as the response format (1.4803ms)
+✔ proposal schema requires every mediated field (0.1835ms)
+✔ proposal payload schema rejects unknown fields (0.1962ms)
+✔ does not send tools to Ollama (0.2904ms)
+✔ uses bounded deterministic Ollama options (0.4387ms)
+✔ parses a valid STOP proposal (1.3765ms)
+✔ rejects invalid JSON proposals (0.3095ms)
+✔ rejects empty proposals (0.1657ms)
+✔ rejects thinking text as a proposal (0.2452ms)
+✔ rejects model-supplied trusted identity fields (0.3099ms)
+✔ mediates a valid proposal through the control boundary (4.1368ms)
+✔ binds trusted principal task request policy and server cost (0.9634ms)
+✔ content STOP produces MODEL_STOP despite thinking (0.6635ms)
+✔ thinking text never becomes parsed proposal data (0.5794ms)
+✔ serialized mediation evidence excludes thinking text (11.2125ms)
+✔ thinking metadata retains only presence and exact length (0.6378ms)
+✔ retains exact done metadata (0.7923ms)
+✔ retains exact evaluation metadata (0.69ms)
+✔ timeout fails closed with zero effects even after a late response (44.3736ms)
+✔ Ollama response content is the sole proposal source (2.9712ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 227.6738
