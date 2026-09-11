@@ -1,0 +1,59 @@
+{
+  "status": "PASS_LOCAL",
+  "attacks": [
+    {
+      "name": "cost_zero",
+      "input": "cost:0",
+      "expected": "AGENT_CONTROLLED_COST",
+      "status": "PASS"
+    },
+    {
+      "name": "cost_override",
+      "input": "cost:999",
+      "expected": "AGENT_CONTROLLED_COST",
+      "status": "PASS"
+    },
+    {
+      "name": "null",
+      "input": "null",
+      "expected": "MALFORMED_REQUEST",
+      "status": "PASS"
+    },
+    {
+      "name": "primitive",
+      "input": "string",
+      "expected": "MALFORMED_REQUEST",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate_retry_storm",
+      "expected": "one commit/seven replay",
+      "status": "PASS"
+    },
+    {
+      "name": "simultaneous_budget_race",
+      "expected": "one effect maximum",
+      "status": "PASS"
+    },
+    {
+      "name": "same_effect_across_principals",
+      "expected": "three isolated effects",
+      "status": "PASS"
+    },
+    {
+      "name": "reserved_ipc_prefix",
+      "expected": "DENY RESERVED_EFFECT_ID_PREFIX",
+      "status": "PASS"
+    },
+    {
+      "name": "actor_task_rebinding",
+      "expected": "DENY ACTOR_OR_TASK_BINDING_FAILED",
+      "status": "PASS"
+    },
+    {
+      "name": "stale_policy",
+      "expected": "DENY STALE_POLICY",
+      "status": "PASS"
+    }
+  ]
+}
