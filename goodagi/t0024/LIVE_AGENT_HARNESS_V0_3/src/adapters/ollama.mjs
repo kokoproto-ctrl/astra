@@ -1,0 +1,8 @@
+import {parseProposal,digest,DEFAULT_LIMITS} from './openai.mjs';
+export const OLLAMA_ENDPOINT='http://127.0.0.1:11434/api/chat';
+export class OllamaProvider {
+  constructor({fetchImpl=fetch,endpoint=OLLAMA_ENDPOINT}={}){if(new URL(endpoint).hostname!=='127.0.0.1')throw new Error('OLLAMA_LOCALHOST_ONLY');this.fetch=fetchImpl;this.endpoint=endpoint;this.callLedger=new Map();}
+  async createResponse({model,instructions,input,maxOutputTokens,signal}){const response=await this.fetch(this.endpoint,{method:'POST',signal,headers:{'content-type':'application/json'},body:JSON.stringify({model,stream:false,tools:[],messages:[{role:'system',content:instructions},{role:'user',content:input}],options:{num_ctx:2048,num_predict:maxOutputTokens,temperature:0}})});if(!response.ok)throw Object.assign(new Error('OLLAMA_ERROR'),{code:'PROVIDER'});const body=await response.json();return {id:body?.created_at??null,output_text:body?.message?.content??'',metrics:body};}
+}
+export const localPreflightPrompt='Return a STOP response matching the required schema: kind="stop", action=null, object_id=null, effect_id=null, payload=null.';
+export const preflightEvidence=(out,boundary,model)=>({timestamp:new Date().toISOString(),provider:'Ollama',endpoint:'127.0.0.1',local_model:model,schema_version:out.evidence?.schema_version,real_local_model_call_count:1,prompt_hash:digest(localPreflightPrompt),validation_result:out.evidence?.validation_result,termination_reason:out.evidence?.termination_reason,effect_count:boundary.effects.size,retry_count:0,tools_supplied:false,external_provider:false,total_duration:out.evidence?.latency_ms??null});

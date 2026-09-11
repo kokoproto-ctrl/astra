@@ -1,0 +1,6 @@
+{"agent_id":"AGENT_A","before":2,"after":1}
+{"agent_id":"AGENT_A","before":1,"after":0}
+{"agent_id":"AGENT_B","before":2,"after":1}
+{"agent_id":"AGENT_B","before":1,"after":0}
+{"agent_id":"AGENT_C","before":2,"after":1}
+{"agent_id":"AGENT_C","before":1,"after":0}
