@@ -1,0 +1,4 @@
+import {ControlBoundary} from '../lib/boundary.mjs';
+import {digest} from '../lib/core.mjs';
+export function trustedRuntime(job){const request_id=crypto.randomUUID(); const principals=job.agents.map((a,i)=>({id:`principal-${request_id}-${i}`,task_id:`task-${request_id}-${i}`,budget:1,allowed_actions:['send_synthetic_message']})); const evidence=[]; return {request_id,principals,boundary:new ControlBoundary({principals,objects:[{id:'operator-channel',value:'synthetic-only',version:1}],evidence}),evidence};}
+export function disabledRun(job){const rt=trustedRuntime(job); return {job_id:job.jobId,provider:'openai',model:'gpt-5.6-luna',synthetic_only:true,test_mode:false,real_model_calls:0,termination_reason:'REAL_PROVIDER_DISABLED',request_id:rt.request_id,prompt_hash:digest(job.goal),results:[],boundary:{effect_count:0,event_count:rt.evidence.length}};}

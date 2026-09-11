@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>GOODAGI Commercial Operator</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Przejdź do konfiguracji</a>
+
+  <header class="topbar">
+    <div class="brand" aria-label="GOODAGI Commercial Operator">
+      <span class="brand-mark" aria-hidden="true">G</span>
+      <div class="brand-copy">
+        <strong>GOODAGI</strong>
+        <small>Commercial Operator · v0.1</small>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="environment-status" aria-live="polite">
+        <span id="systemDot" class="dot neutral" aria-hidden="true"></span>
+        <span id="systemStatus">Nie sprawdzono środowiska</span>
+      </div>
+      <button id="healthBtn" class="button ghost compact" type="button">Sprawdź środowisko</button>
+      <button id="themeBtn" class="icon-button" type="button" aria-label="Zmień motyw" title="Zmień motyw">◐</button>
+    </div>
+  </header>
+
+  <div class="progress-wrap" aria-label="Etapy konfiguracji">
+    <ol class="stepper">
+      <li class="active"><span>1</span><strong>Job</strong></li>
+      <li><span>2</span><strong>Provider</strong></li>
+      <li><span>3</span><strong>Agenci</strong></li>
+      <li><span>4</span><strong>Uruchom</strong></li>
+    </ol>
+  </div>
+
+  <main id="main" class="layout">
+    <section class="workspace" aria-labelledby="jobHeading">
+      <div id="errorSummary" class="error-summary" tabindex="-1" role="alert" hidden>
+        <strong>Popraw konfigurację</strong>
+        <ul id="errorList"></ul>
+      </div>
+
+      <section class="panel section-card" aria-labelledby="jobHeading">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">KROK 1</span>
+            <h1 id="jobHeading">Job klienta</h1>
+            <p class="section-intro">Podaj minimum potrzebne do uruchomienia. Dane techniczne są ukryte niżej.</p>
+          </div>
+          <span class="badge safe">Synthetic-only</span>
+        </div>
+        <div class="field-grid two">
+          <div class="field">
+            <label for="jobId">Job ID</label>
+            <input id="jobId" maxlength="64" value="pilot-001" autocomplete="off" aria-describedby="jobIdHint">
+            <small id="jobIdHint" class="hint">Krótki identyfikator bez spacji, np. <code>pilot-001</code>.</small>
+          </div>
+          <div class="field">
+            <label for="clientLabel">Etykieta klienta <span class="optional">opcjonalnie</span></label>
+            <input id="clientLabel" maxlength="200" placeholder="np. Firma ABC" autocomplete="off">
+          </div>
+        </div>
+        <div class="field">
+          <div class="label-row">
+            <label for="goal">Cel biznesowy</label>
+            <span id="goalCount" class="char-count">0 / 6000</span>
+          </div>
+          <textarea id="goal" rows="5" maxlength="6000" placeholder="Np. Oceń trzy warianty oferty, wskaż ryzyka i przygotuj rekomendację dla operatora." aria-describedby="goalHint"></textarea>
+          <small id="goalHint" class="hint">Napisz, jaki rezultat ma otrzymać człowiek. Nie opisuj tutaj tajnych danych ani kluczy API.</small>
+        </div>
+      </section>
+
+      <section class="panel section-card" aria-labelledby="providerHeading">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">KROK 2</span>
+            <h2 id="providerHeading">Wybierz provider</h2>
+            <p class="section-intro">Lokalna Ollama jest domyślna. OpenAI używa klucza wyłącznie po stronie serwera.</p>
+          </div>
+        </div>
+        <fieldset class="provider-box">
+          <legend class="sr-only">Provider modelu</legend>
+          <div class="provider-grid">
+            <label class="provider-card">
+              <input type="radio" name="provider" value="ollama" disabled>
+              <span class="provider-card-body">
+                <span class="provider-icon" aria-hidden="true">⌂</span>
+                <span><strong>Ollama lokalnie</strong><small>Prywatny pilot na 127.0.0.1</small><em id="ollamaReady">status: nieznany</em></span>
+              </span>
+            </label>
+            <label class="provider-card">
+              <input type="radio" name="provider" value="openai" checked>
+              <span class="provider-card-body">
+                <span class="provider-icon" aria-hidden="true">✦</span>
+                <span><strong>OpenAI API</strong><small>Klucz pozostaje po stronie serwera</small><em id="openaiReady">status: nieznany</em></span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+        <details class="advanced">
+          <summary>Ustawienia techniczne</summary>
+          <div class="advanced-body">
+            <div class="field">
+              <label for="model">Model</label>
+              <input id="model" value="gpt-5.6-luna" maxlength="128" autocomplete="off" readonly>
+              <small class="hint">Domyślnie lokalnie <code>qwen3:0.6b</code>, dla OpenAI <code>gpt-5.6-luna</code>.</small>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel section-card" aria-labelledby="agentsHeading">
+        <div class="section-head align-center">
+          <div>
+            <span class="eyebrow">KROK 3</span>
+            <h2 id="agentsHeading">Agenci</h2>
+            <p class="section-intro">Każdy agent ma osobną rolę i jedno wywołanie modelu.</p>
+          </div>
+          <button id="addAgent" class="button ghost" type="button">+ Dodaj agenta</button>
+        </div>
+        <div id="agents" class="agents" aria-live="polite"></div>
+      </section>
+
+      <section class="panel section-card review-card" aria-labelledby="reviewHeading">
+        <div class="section-head">
+          <div><span class="eyebrow">KROK 4</span><h2 id="reviewHeading">Kontrola i uruchomienie</h2></div>
+        </div>
+        <div class="safety-card">
+          <div class="safety-title"><span class="shield" aria-hidden="true">✓</span><strong>Granica bezpieczeństwa v0.1</strong></div>
+          <ul><li>maks. 5 agentów</li><li>1 model call / agent</li><li>tylko <code>send_synthetic_message</code></li><li>brak realnych efektów</li><li>API key nie trafia do przeglądarki</li></ul>
+        </div>
+        <label class="confirm" for="confirm">
+          <input id="confirm" type="checkbox">
+          <span><strong>Potwierdzam zakres syntetyczny.</strong><small>Wynik wymaga zatwierdzenia człowieka przed jakimkolwiek realnym działaniem.</small></span>
+        </label>
+        <div class="action-bar">
+          <div class="action-group secondary-actions">
+            <button id="validateBtn" class="button secondary" type="button">Sprawdź konfigurację</button>
+            <button id="exportBtn" class="button ghost" type="button">Eksportuj JSON</button>
+            <label class="button ghost import-label" tabindex="0">Importuj JSON<input id="importFile" type="file" accept="application/json,.json" hidden></label>
+          </div>
+          <button id="runBtn" class="button primary run-button" type="button">Uruchom GOODAGI</button>
+        </div>
+        <div id="formMessage" class="message" role="status" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <aside class="panel results" aria-labelledby="resultsHeading">
+      <div class="results-head">
+        <div><span class="eyebrow">WYNIK</span><h2 id="resultsHeading">Decyzje i evidence</h2></div>
+        <span id="runBadge" class="badge neutral">Brak runu</span>
+      </div>
+      <div class="metrics" aria-label="Podsumowanie runu">
+        <div><small>Provider</small><strong id="metricProvider">—</strong></div>
+        <div><small>Model calls</small><strong id="metricCalls">—</strong></div>
+        <div><small>Efekty</small><strong id="metricEffects">—</strong></div>
+      </div>
+      <div id="resultCards" class="result-cards">
+        <div class="empty-state"><span class="empty-icon" aria-hidden="true">◎</span><strong>Brak wyników</strong><p>Po uruchomieniu zobaczysz tutaj rezultat każdego agenta i decyzję GOODAGI.</p></div>
+      </div>
+      <details class="evidence"><summary>Evidence JSON</summary><pre id="evidenceJson">{}</pre></details>
+      <div class="result-actions"><button id="downloadEvidence" class="button ghost" type="button" disabled>Pobierz evidence</button></div>
+      <div class="operator-note"><strong>Human approval required</strong><p>Interfejs nie wykonuje operacji na systemach klienta. Wynik jest materiałem dla operatora.</p></div>
+    </aside>
+  </main>
+
+  <footer><span>GOODAGI Commercial Operator v0.1</span><span>localhost only · human-supervised · evidence-driven</span></footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

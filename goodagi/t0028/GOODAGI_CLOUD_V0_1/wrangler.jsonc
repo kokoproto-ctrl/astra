@@ -1,0 +1,9 @@
+{
+  "name": "goodagi-cloud-v0-1",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-09-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "vars": { "GOODAGI_REAL_PROVIDER_ENABLED": "false" },
+  "observability": { "enabled": true, "logs": { "enabled": true }, "traces": { "enabled": true } }
+}
