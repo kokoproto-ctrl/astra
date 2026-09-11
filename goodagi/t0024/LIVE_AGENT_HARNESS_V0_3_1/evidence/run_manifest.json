@@ -1,0 +1,32 @@
+{
+  "format": "GOODAGI_LIVE_AGENT_HARNESS_V0_1",
+  "model": "synthetic-non-llm-fixture",
+  "started_at": "1970-01-01T00:00:00.000Z",
+  "agents": [
+    {
+      "agent_id": "AGENT_A",
+      "principal_id": "principal-a",
+      "task_id": "task-a",
+      "prompt_hash": "08daf4f563c1271d6d258092e22e4f8288f6ed9ed87b6766a5c833f62d53fc9d",
+      "max_operations": 2,
+      "context_limit": 1200
+    },
+    {
+      "agent_id": "AGENT_B",
+      "principal_id": "principal-b",
+      "task_id": "task-b",
+      "prompt_hash": "08daf4f563c1271d6d258092e22e4f8288f6ed9ed87b6766a5c833f62d53fc9d",
+      "max_operations": 2,
+      "context_limit": 1200
+    },
+    {
+      "agent_id": "AGENT_C",
+      "principal_id": "principal-c",
+      "task_id": "task-c",
+      "prompt_hash": "08daf4f563c1271d6d258092e22e4f8288f6ed9ed87b6766a5c833f62d53fc9d",
+      "max_operations": 2,
+      "context_limit": 1200
+    }
+  ],
+  "deterministic_stop": "max_operations_or_terminal_decision"
+}

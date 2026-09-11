@@ -1,0 +1,5 @@
+{
+  "external_network": false,
+  "host_shell_exposed_to_agents": false,
+  "synthetic_tools_only": true
+}

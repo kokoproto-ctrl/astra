@@ -1,0 +1,1 @@
+{"provider":"Ollama","endpoint":"http://127.0.0.1:11434/api/chat","model":"qwen3:0.6b","think":false,"format":"json_schema","num_ctx":2048,"num_predict":256,"temperature":0,"stream":false,"tools_supplied":false,"real_model_calls_this_task":0,"historical_experiment_1_calls":1}
