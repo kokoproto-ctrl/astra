@@ -1,0 +1,16 @@
+# Secrets and local runtime state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+token*
+
+# Dependencies and local artifacts
+node_modules/
+npm-debug.log*
+work/
+outputs/
+__pycache__/
+*.py[cod]
