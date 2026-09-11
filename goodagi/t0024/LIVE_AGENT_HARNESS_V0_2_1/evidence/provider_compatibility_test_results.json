@@ -1,0 +1,1 @@
+{"status":"PASS_LOCAL","suite":"provider_compatibility","tests":8,"passed":8,"failed":0,"real_model_call_count":0,"includes":["structured_output_schema_compatibility","stop_null_semantics","proposal_typed_fields","late_provider_response_after_timeout_creates_zero_effects"]}
