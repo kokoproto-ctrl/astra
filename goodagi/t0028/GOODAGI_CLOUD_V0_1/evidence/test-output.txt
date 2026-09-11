@@ -1,5 +1,5 @@
 node --test test/*.test.mjs
-tests 14
-pass 14
+tests 19
+pass 19
 fail 0
 real OpenAI calls: 0
