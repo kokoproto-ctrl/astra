@@ -2,7 +2,7 @@
 
 ## STATUS
 
-`HARNESS_AUDIT_REPAIR=PASS_LOCAL` after 26/26 local tests, including real process-boundary IPC fixtures. `LIVE_3_AGENT_LLM_EXPERIMENT` remains BLOCKED: no credential, adapter, model request, or external effect was used.
+`HARNESS_AUDIT_REPAIR=PASS_LOCAL` after the v0.1.1 local repair suite; `LIVE_3_AGENT_LLM_EXPERIMENT` remains BLOCKED. No credential or approved model adapter was used, and no model request or external effect was made.
 
 ## DONE
 

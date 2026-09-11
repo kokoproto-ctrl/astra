@@ -1,10 +1,10 @@
-# GOODAGI T0024 — LIVE_AGENT_HARNESS_V0_1
+# GOODAGI T0024 — LIVE_AGENT_HARNESS_V0_1_1
 
-This commit records the bounded synthetic-agent harness and local evidence for `GOODAGI_001/T0024`.
+This audit-repair commit records `LIVE_AGENT_HARNESS_V0_1_1` and local evidence for `GOODAGI_001/T0024`.
 
 ## Architecture
 
-Each independent agent context can only emit a structured request proposal. The request passes through `ControlBoundary`, which performs default-deny policy checks, principal/task/action/object binding, budget checks, policy-version validation, idempotency/replay validation, and the only synthetic effect commit. Agents receive no host shell, filesystem, network, or real-service tools.
+Each agent process can only emit a structured request proposal over loopback IPC. The separate boundary process owns all budgets, effects, object state, and policy state; it performs default-deny policy checks, principal/task/action/object binding, server-side action-cost validation, policy-version validation, idempotency/replay validation, and the only synthetic effect commit. Agent-supplied cost is rejected.
 
 ## Run
 
@@ -18,7 +18,7 @@ node scripts/hash.mjs
 
 ## Current result
 
-`PASS_LOCAL`: local suite is 10/10 PASS; the bounded three-agent synthetic fixture produced six mediated decisions.
+`HARNESS_AUDIT_REPAIR=PASS_LOCAL`: the full repair suite is 26/26 PASS, including real boundary/agent child-process IPC tests.
 
 `LIVE_LLM_EXECUTION = UNVERIFIED`. No real model call ran. The live runner fails closed without an approved adapter and credential.
 
