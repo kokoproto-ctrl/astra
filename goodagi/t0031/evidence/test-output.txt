@@ -1,0 +1,7 @@
+T0031 deterministic implementation test evidence
+
+Command: node --test tests/*.test.mjs
+Completed result: tests 40; pass 40; fail 0.
+Scope: 33 replayed T0030 negative cases plus 7 implementation cases.
+Executor: SyntheticReadOnlyExecutor; external_side_effect=false.
+No model/provider calls, deployments, secrets, or external tool effects were performed.
