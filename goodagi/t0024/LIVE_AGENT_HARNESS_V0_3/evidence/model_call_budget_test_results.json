@@ -1,0 +1,1 @@
+{"status":"PASS_LOCAL","tests":4,"passed":4,"real_model_call_count":0,"cases":["limit_one_blocks_second_before_provider","provider_error_consumes_call","timeout_consumes_call","agent_counters_are_isolated"]}

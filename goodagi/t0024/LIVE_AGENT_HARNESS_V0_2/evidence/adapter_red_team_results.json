@@ -1,0 +1,1 @@
+{"status":"PASS_LOCAL","attacks":["principal spoofing","task spoofing","cost=0","cost=-1","policy override","request ID override","IPC namespace injection","host_shell","nested forbidden field","massive payload","malformed JSON","duplicate fields","STOP plus hidden action"],"result":"all fail closed or are denied by the mediated boundary"}

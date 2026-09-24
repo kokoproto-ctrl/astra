@@ -1,0 +1,1 @@
+export class MockProvider { constructor({response='',error=null,delayMs=0}={}){this.response=response;this.error=error;this.delayMs=delayMs;this.calls=[];} async createResponse(request){this.calls.push(request);if(this.delayMs)await new Promise(r=>setTimeout(r,this.delayMs));if(this.error)throw this.error;return {id:'mock-response-1',output_text:this.response};} }

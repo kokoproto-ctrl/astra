@@ -1,0 +1,8 @@
+import net from 'node:net'; import {fork} from 'node:child_process';
+const here=new URL('.',import.meta.url);
+const receive=(child,type)=>new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error(`timeout waiting for ${type}`)),5000); child.on('message',m=>{if(m?.type===type){clearTimeout(timer);resolve(m)}}); child.on('error',reject);});
+export async function startBoundary(config) { const child=fork(new URL('boundary-process.mjs',here),[],{env:{...process.env,GOODAGI_BOUNDARY_CONFIG:JSON.stringify(config)},stdio:['ignore','ignore','ignore','ipc']}); const ready=await receive(child,'ready'); return {child,...ready}; }
+export async function runAgent(port,requests) { const child=fork(new URL('agent-process.mjs',here),[],{env:{...process.env,GOODAGI_AGENT_CONFIG:JSON.stringify({port,requests})},stdio:['ignore','ignore','ignore','ipc']}); const complete=await Promise.race([receive(child,'complete'),receive(child,'error').then(x=>Promise.reject(new Error(x.error)))]); await new Promise(r=>child.once('exit',r)); return complete; }
+export function sendRaw(port,request) { return new Promise((resolve,reject)=>{const socket=net.connect(port,'127.0.0.1');let buffer='';socket.on('connect',()=>socket.write(JSON.stringify({agent_pid:process.pid,request})+'\n'));socket.on('data',chunk=>{buffer+=chunk;if(buffer.includes('\n')){socket.end();resolve(JSON.parse(buffer.slice(0,buffer.indexOf('\n'))));}});socket.on('error',reject);}); }
+export async function snapshot(boundary) { boundary.child.send({type:'snapshot'}); return receive(boundary.child,'snapshot'); }
+export async function stopBoundary(boundary) { boundary.child.kill('SIGTERM'); await new Promise(r=>boundary.child.once('exit',r)); }

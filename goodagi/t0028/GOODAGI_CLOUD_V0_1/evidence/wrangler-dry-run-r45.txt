@@ -1,0 +1,21 @@
+AUDITED_HEAD=89bfd90120e53a81e807ad1ed9062aefad9583f9
+RUN_AT_UTC=2026-09-12T04:18:44.0295765Z
+LIVE_CLOUDFLARE_DEPLOYS=0
+REAL_OPENAI_CALLS=0
+OPENAI_KEY_CONFIGURATION_ACTIONS=0
+REAL_PROVIDER_DEFAULT_ENABLED=false
+COMMAND_FALLBACK=local Wrangler because npm is unavailable
+EXIT_CODE=0
+
+
+ ⛅️ wrangler 4.131.0
+────────────────────
+✨ Read 3 files from the assets directory C:\Users\Krzysztof Prottung\Documents\Codex\2026-09-11\fetch-and-execute-the-appropriate-instructions\work\astra\goodagi\t0028\GOODAGI_CLOUD_V0_1\public
+Total Upload: 20.78 KiB / gzip: 6.17 KiB
+Your Worker has access to the following bindings:
+Binding                                          Resource                  
+env.ASSETS                                       Assets                    
+env.GOODAGI_REAL_PROVIDER_ENABLED ("false")      Environment Variable      
+
+--dry-run: exiting now.
+

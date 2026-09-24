@@ -1,0 +1,32 @@
+✔ ollama compatibility 1 (1.6555ms)
+✔ ollama compatibility 2 (0.6917ms)
+✔ ollama compatibility 3 (0.2153ms)
+✔ ollama compatibility 4 (0.2087ms)
+✔ ollama compatibility 5 (0.7449ms)
+✔ ollama compatibility 6 (1.2627ms)
+✔ ollama compatibility 7 (0.1761ms)
+✔ ollama compatibility 8 (0.1677ms)
+✔ ollama compatibility 9 (0.1845ms)
+✔ ollama compatibility 10 (0.3224ms)
+✔ ollama compatibility 11 (0.1894ms)
+✔ ollama compatibility 12 (0.1702ms)
+✔ ollama compatibility 13 (0.1928ms)
+✔ ollama compatibility 14 (0.7159ms)
+✔ ollama compatibility 15 (0.1973ms)
+✔ ollama compatibility 16 (0.1746ms)
+✔ ollama compatibility 17 (0.1127ms)
+✔ ollama compatibility 18 (0.2017ms)
+✔ ollama compatibility 19 (0.1668ms)
+✔ ollama compatibility 20 (0.1138ms)
+✔ ollama compatibility 21 (0.0946ms)
+✔ ollama compatibility 22 (0.0955ms)
+✔ ollama compatibility 23 (0.0931ms)
+✔ ollama compatibility 24 (0.1597ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 171.9592

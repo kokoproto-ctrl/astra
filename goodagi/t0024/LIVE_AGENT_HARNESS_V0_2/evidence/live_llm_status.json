@@ -1,0 +1,6 @@
+{
+  "live_llm_result": "BLOCKED",
+  "reason": "No approved model credential or adapter was present; scripts/run-live.mjs made no model request.",
+  "external_effects": 0,
+  "claim_boundary": "This is not LIVE_3_AGENT_LLM_EXPERIMENT evidence."
+}

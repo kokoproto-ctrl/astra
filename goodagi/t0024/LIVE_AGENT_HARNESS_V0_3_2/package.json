@@ -1,0 +1,16 @@
+{
+  "name": "goodagi-live-agent-harness-v0-2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:multi": "node --test tests/process-ipc.test.mjs",
+    "run:synthetic": "node scripts/run-synthetic.mjs",
+    "run:live": "node scripts/run-live.mjs",
+    "run:ollama-3agent-experiment": "node scripts/run-ollama-3agent-experiment-v0.4.mjs --execute-3agent-experiment",
+    "hash": "node scripts/hash.mjs",
+    "audit:repair": "node scripts/run-audit-repair.mjs",
+    "test:adapter": "node --test tests/adapter.test.mjs"
+  },
+  "dependencies": {"openai":"7.15.0"}
+}

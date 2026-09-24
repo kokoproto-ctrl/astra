@@ -1,0 +1,1 @@
+{"name":"goodagi-cloud-v0-1","private":true,"type":"module","scripts":{"dev":"wrangler dev","test":"node --test test/*.test.mjs","cf:dry-run":"wrangler deploy --dry-run","deploy":"wrangler deploy"},"devDependencies":{"wrangler":"^4.76.0"}}

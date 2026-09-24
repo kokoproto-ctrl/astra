@@ -1,0 +1,285 @@
+{
+  "version": "v0.1.1",
+  "status": "PASS_LOCAL",
+  "tests": [
+    {
+      "name": "cost_0_cannot_override_policy",
+      "status": "PASS",
+      "expected": "DENY AGENT_CONTROLLED_COST; remaining=1",
+      "observed": {
+        "decision": "DENY",
+        "reason": "AGENT_CONTROLLED_COST",
+        "remaining": 1
+      }
+    },
+    {
+      "name": "cost_-1_cannot_override_policy",
+      "status": "PASS",
+      "expected": "DENY AGENT_CONTROLLED_COST; remaining=1",
+      "observed": {
+        "decision": "DENY",
+        "reason": "AGENT_CONTROLLED_COST",
+        "remaining": 1
+      }
+    },
+    {
+      "name": "cost_999_cannot_override_policy",
+      "status": "PASS",
+      "expected": "DENY AGENT_CONTROLLED_COST; remaining=1",
+      "observed": {
+        "decision": "DENY",
+        "reason": "AGENT_CONTROLLED_COST",
+        "remaining": 1
+      }
+    },
+    {
+      "name": "missing_cost_uses_policy_then_exhausts",
+      "status": "PASS",
+      "expected": "ALLOW then DENY BUDGET_EXHAUSTED",
+      "observed": {
+        "first": "ALLOW",
+        "second": "BUDGET_EXHAUSTED"
+      }
+    },
+    {
+      "name": "malformed_null_controlled_deny",
+      "status": "PASS",
+      "expected": "DENY MALFORMED_REQUEST",
+      "observed": {
+        "decision": "DENY",
+        "reason": "MALFORMED_REQUEST"
+      }
+    },
+    {
+      "name": "malformed_undefined_controlled_deny",
+      "status": "PASS",
+      "expected": "DENY MALFORMED_REQUEST",
+      "observed": {
+        "decision": "DENY",
+        "reason": "MALFORMED_REQUEST"
+      }
+    },
+    {
+      "name": "malformed_string_controlled_deny",
+      "status": "PASS",
+      "expected": "DENY MALFORMED_REQUEST",
+      "observed": {
+        "decision": "DENY",
+        "reason": "MALFORMED_REQUEST"
+      }
+    },
+    {
+      "name": "malformed_array_controlled_deny",
+      "status": "PASS",
+      "expected": "DENY MALFORMED_REQUEST",
+      "observed": {
+        "decision": "DENY",
+        "reason": "MALFORMED_REQUEST"
+      }
+    },
+    {
+      "name": "malformed_empty_object_controlled_deny",
+      "status": "PASS",
+      "expected": "DENY MALFORMED_REQUEST",
+      "observed": {
+        "decision": "DENY",
+        "reason": "MALFORMED_REQUEST"
+      }
+    },
+    {
+      "name": "malformed_partial_object_controlled_deny",
+      "status": "PASS",
+      "expected": "DENY MALFORMED_REQUEST",
+      "observed": {
+        "decision": "DENY",
+        "reason": "MALFORMED_REQUEST"
+      }
+    },
+    {
+      "name": "three_principals_same_effect",
+      "status": "PASS",
+      "expected": "3 ALLOW, 3 isolated effects",
+      "observed": {
+        "name": "three_principals_same_effect",
+        "boundary_pid": 10508,
+        "agent_pids": {
+          "A": 4692,
+          "B": 6240,
+          "C": 10084
+        },
+        "request_count": 3,
+        "effect_count": 3,
+        "replay_count": 0,
+        "budget_before": 2,
+        "budget_after": [
+          {
+            "id": "a",
+            "remaining": 1
+          },
+          {
+            "id": "b",
+            "remaining": 1
+          },
+          {
+            "id": "c",
+            "remaining": 1
+          }
+        ],
+        "final_object_state": [
+          {
+            "id": "o",
+            "value": 0,
+            "version": 1
+          }
+        ],
+        "decisions": [
+          "ALLOW",
+          "ALLOW",
+          "ALLOW"
+        ],
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "eight_retry_storm",
+      "status": "PASS",
+      "expected": "one commit, seven replay, one charge",
+      "observed": {
+        "name": "eight_retry_storm",
+        "boundary_pid": 2892,
+        "agent_pids": {
+          "A": 5020
+        },
+        "request_count": 8,
+        "effect_count": 1,
+        "replay_count": 7,
+        "budget_before": 2,
+        "budget_after": [
+          {
+            "id": "a",
+            "remaining": 1
+          },
+          {
+            "id": "b",
+            "remaining": 2
+          },
+          {
+            "id": "c",
+            "remaining": 2
+          }
+        ],
+        "final_object_state": [
+          {
+            "id": "o",
+            "value": 0,
+            "version": 1
+          }
+        ],
+        "allows": 1,
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "budget_race",
+      "status": "PASS",
+      "expected": "at most one effect with budget one",
+      "observed": {
+        "name": "budget_race",
+        "boundary_pid": 708,
+        "agent_pids": {
+          "A": 13660
+        },
+        "request_count": 3,
+        "effect_count": 1,
+        "replay_count": 0,
+        "budget_before": 1,
+        "budget_after": [
+          {
+            "id": "a",
+            "remaining": 0
+          },
+          {
+            "id": "b",
+            "remaining": 1
+          },
+          {
+            "id": "c",
+            "remaining": 1
+          }
+        ],
+        "final_object_state": [
+          {
+            "id": "o",
+            "value": 0,
+            "version": 1
+          }
+        ],
+        "allows": 1,
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "malformed_and_unauthorized_ipc",
+      "status": "PASS",
+      "expected": "controlled deny, controlled deny, boundary remains alive",
+      "observed": {
+        "name": "malformed_and_unauthorized_ipc",
+        "boundary_pid": 12984,
+        "agent_pids": {},
+        "request_count": 3,
+        "effect_count": 1,
+        "replay_count": 0,
+        "budget_before": 2,
+        "budget_after": [
+          {
+            "id": "a",
+            "remaining": 1
+          },
+          {
+            "id": "b",
+            "remaining": 2
+          },
+          {
+            "id": "c",
+            "remaining": 2
+          }
+        ],
+        "final_object_state": [
+          {
+            "id": "o",
+            "value": 0,
+            "version": 1
+          }
+        ],
+        "malformed": "MALFORMED_REQUEST",
+        "unauthorized": "UNAUTHORIZED_ACTION",
+        "healthy": "ALLOW",
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "reserved_ipc_prefix_reattack",
+      "status": "PASS",
+      "expected": "DENY RESERVED_EFFECT_ID_PREFIX",
+      "observed": {
+        "reason": "RESERVED_EFFECT_ID_PREFIX"
+      }
+    },
+    {
+      "name": "actor_task_rebinding_reattack",
+      "status": "PASS",
+      "expected": "DENY ACTOR_OR_TASK_BINDING_FAILED",
+      "observed": {
+        "reason": "ACTOR_OR_TASK_BINDING_FAILED"
+      }
+    },
+    {
+      "name": "stale_policy_reattack",
+      "status": "PASS",
+      "expected": "DENY STALE_POLICY",
+      "observed": {
+        "reason": "STALE_POLICY"
+      }
+    }
+  ]
+}

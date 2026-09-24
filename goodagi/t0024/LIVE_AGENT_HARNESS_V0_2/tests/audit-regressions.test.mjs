@@ -1,0 +1,6 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import {ControlBoundary,ACTION_COSTS} from '../src/boundary.mjs';
+function boundary(budget=2){return new ControlBoundary({principals:[{id:'a',task_id:'t',budget,allowed_actions:['inspect_object']}],objects:[{id:'o',value:0,version:1}]});} function request(x={}){return {request_id:'r',principal_id:'a',task_id:'t',effect_id:'e',action:'inspect_object',object_id:'o',policy_version:1,...x};}
+test('server-side action cost table is authoritative',()=>assert.equal(ACTION_COSTS.inspect_object,1));
+for(const value of [0,-1,999]) test(`agent cost ${value} is fail-closed`,()=>{const b=boundary();const out=b.decide(request({cost:value}));assert.equal(out.reason,'AGENT_CONTROLLED_COST');assert.equal(b.principals.get('a').remaining,2);});
+test('missing cost uses policy and exhaustion denies next unique effect',()=>{const b=boundary(1);assert.equal(b.decide(request()).decision,'ALLOW');assert.equal(b.decide(request({request_id:'next',effect_id:'next'})).reason,'BUDGET_EXHAUSTED');});
+for(const malformed of [null,undefined,'request',[],{}, {request_id:'only'}]) test(`malformed ${String(malformed)} fails closed`,()=>{const out=boundary().decide(malformed);assert.equal(out.decision,'DENY');assert.equal(out.reason,'MALFORMED_REQUEST');});

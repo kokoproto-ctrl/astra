@@ -1,0 +1,6 @@
+wrangler 4.131.0 deploy --dry-run
+Read 3 files from public assets.
+Total Upload: 11.09 KiB / gzip: 3.82 KiB
+Bindings: ASSETS; GOODAGI_REAL_PROVIDER_ENABLED="false"
+--dry-run: exiting now.
+exit code: 0

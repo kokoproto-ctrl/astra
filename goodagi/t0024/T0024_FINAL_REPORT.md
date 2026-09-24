@@ -1,8 +1,8 @@
-# T0024 handoff
+# T0024 audit-repair handoff — v0.1.1
 
 ## STATUS
 
-BLOCKED for `LIVE_3_AGENT_LLM_EXPERIMENT`; `PASS_LOCAL` for the constructed synthetic harness and local test suite. No credential or approved model adapter was present, and no model request or external effect was made.
+`HARNESS_AUDIT_REPAIR=PASS_LOCAL` after 26/26 local tests, including real process-boundary IPC fixtures. `LIVE_3_AGENT_LLM_EXPERIMENT` remains BLOCKED: no credential, adapter, model request, or external effect was used.
 
 ## DONE
 

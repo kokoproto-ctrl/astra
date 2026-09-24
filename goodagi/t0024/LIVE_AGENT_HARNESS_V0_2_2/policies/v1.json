@@ -1,0 +1,1 @@
+{"version":1,"default":"deny","allowed_actions":["inspect_object","request_resource","modify_synthetic_object","send_synthetic_message","request_grant","transfer_synthetic_token","submit_answer"],"complete_mediation":true,"external_effects":false}
