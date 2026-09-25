@@ -5,8 +5,8 @@ import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 SERVICE = "ASTRA_RENDER_EXECUTOR"
-VERSION = "1.0.0"
-TOKEN = os.environ.get("ASTRA_RENDER_TOKEN", "")
+VERSION = "1.0.1"
+TOKEN_SHA256 = "8beec7cad873f2be11cdc1113372f53c82bbeb499f986a155ef798058c8f95ee"
 PORT = int(os.environ.get("PORT", "10000"))
 MAX_BODY = 65536
 ALLOWED_ACTIONS = {"RENDER_ECHO_TEST"}
@@ -46,7 +46,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(404, {"ok": False, "error": "NOT_FOUND"})
 
         supplied = self.headers.get("X-ASTRA-RENDER-TOKEN", "")
-        if not TOKEN or not supplied or not hmac.compare_digest(supplied, TOKEN):
+        supplied_hash = hashlib.sha256(supplied.encode("utf-8")).hexdigest() if supplied else ""
+        if not supplied or not hmac.compare_digest(supplied_hash, TOKEN_SHA256):
             return self._json(401, {"ok": False, "error": "UNAUTHORIZED"})
 
         try:
@@ -91,6 +92,4 @@ class Handler(BaseHTTPRequestHandler):
         })
 
 if __name__ == "__main__":
-    if not TOKEN:
-        raise SystemExit("ASTRA_RENDER_TOKEN is required")
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
