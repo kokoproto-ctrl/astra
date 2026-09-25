@@ -1,22 +1,17 @@
-import os
 import json
-import hmac
-import hashlib
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import os
 
 SERVICE = "ASTRA_RENDER_EXECUTOR"
-VERSION = "1.0.1"
-TOKEN_SHA256 = "8beec7cad873f2be11cdc1113372f53c82bbeb499f986a155ef798058c8f95ee"
+VERSION = "1.0.2"
+MODE = "TEST_ONLY"
 PORT = int(os.environ.get("PORT", "10000"))
-MAX_BODY = 65536
+MAX_BODY = 16384
 ALLOWED_ACTIONS = {"RENDER_ECHO_TEST"}
 
-def canonical_hash(value):
-    raw = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-    return hashlib.sha256(raw).hexdigest()
-
 class Handler(BaseHTTPRequestHandler):
-    server_version = "ASTRA-Render-Executor/1.0"
+    server_version = "ASTRA-Render-Executor/1.0.2"
 
     def _json(self, code, body):
         data = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -36,7 +31,8 @@ class Handler(BaseHTTPRequestHandler):
                 "ok": True,
                 "service": SERVICE,
                 "version": VERSION,
-                "mode": "TEST_ONLY",
+                "mode": MODE,
+                "auth": "TEST_ONLY_STRICT_PAYLOAD_NO_SECRET",
                 "allowed_actions": sorted(ALLOWED_ACTIONS),
             })
         return self._json(404, {"ok": False, "error": "NOT_FOUND"})
@@ -45,10 +41,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/execute":
             return self._json(404, {"ok": False, "error": "NOT_FOUND"})
 
-        supplied = self.headers.get("X-ASTRA-RENDER-TOKEN", "")
-        supplied_hash = hashlib.sha256(supplied.encode("utf-8")).hexdigest() if supplied else ""
-        if not supplied or not hmac.compare_digest(supplied_hash, TOKEN_SHA256):
-            return self._json(401, {"ok": False, "error": "UNAUTHORIZED"})
+        if self.headers.get("X-ASTRA-MODE", "") != MODE:
+            return self._json(403, {"ok": False, "error": "TEST_MODE_REQUIRED"})
 
         try:
             length = int(self.headers.get("Content-Length", "0"))
@@ -65,30 +59,35 @@ class Handler(BaseHTTPRequestHandler):
         required = ("effect_id", "job_id", "generation", "fence_token", "action_type", "payload")
         if any(k not in request for k in required):
             return self._json(400, {"ok": False, "error": "REQUIRED_FIELDS_MISSING"})
+        if not isinstance(request["effect_id"], str) or not request["effect_id"].startswith("TEST_ONLY_"):
+            return self._json(403, {"ok": False, "error": "TEST_EFFECT_REQUIRED"})
         if request["action_type"] not in ALLOWED_ACTIONS:
             return self._json(403, {"ok": False, "error": "ACTION_NOT_ALLOWED"})
         if not isinstance(request["payload"], dict):
             return self._json(400, {"ok": False, "error": "PAYLOAD_INVALID"})
+        try:
+            uuid.UUID(str(request["job_id"]))
+            uuid.UUID(str(request["fence_token"]))
+            generation = int(request["generation"])
+            if generation <= 0:
+                raise ValueError()
+        except Exception:
+            return self._json(400, {"ok": False, "error": "EXECUTION_IDENTITY_INVALID"})
 
-        output = {
-            "echo": request["payload"],
-            "executor": SERVICE,
-            "version": VERSION,
-            "mode": "TEST_ONLY",
-        }
-        evidence = {
-            "effect_id": str(request["effect_id"]),
-            "job_id": str(request["job_id"]),
-            "generation": int(request["generation"]),
-            "fence_token": str(request["fence_token"]),
-            "action_type": request["action_type"],
-            "output": output,
-        }
         return self._json(200, {
             "ok": True,
             "status": "SUCCEEDED",
-            **evidence,
-            "evidence_sha256": canonical_hash(evidence),
+            "effect_id": request["effect_id"],
+            "job_id": str(request["job_id"]),
+            "generation": generation,
+            "fence_token": str(request["fence_token"]),
+            "action_type": request["action_type"],
+            "output": {
+                "echo": request["payload"],
+                "executor": SERVICE,
+                "version": VERSION,
+                "mode": MODE,
+            },
         })
 
 if __name__ == "__main__":
