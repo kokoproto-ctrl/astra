@@ -9,7 +9,7 @@ import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 SERVICE = "ASTRA_RENDER_EXECUTOR"
-VERSION = "1.3.0"
+VERSION = "1.3.1"
 MODE = "PRODUCTION_GATED"
 PORT = int(os.environ.get("PORT", "10000"))
 MAX_BODY = 65536
@@ -202,7 +202,7 @@ def _validate_object(payload):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "ASTRA-Render-Executor/1.3.0"
+    server_version = "ASTRA-Render-Executor/1.3.1"
 
     def _json(self, code, body):
         data = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -215,6 +215,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, fmt, *args):
         print(json.dumps({"service": SERVICE, "event": "http", "message": fmt % args}, ensure_ascii=False), flush=True)
+
+    def do_HEAD(self):
+        if self.path in ("/", "/health"):
+            self.send_response(200)
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return
+        self.send_response(404)
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
 
     def do_GET(self):
         if self.path == "/health":
