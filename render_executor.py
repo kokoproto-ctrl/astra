@@ -6,10 +6,12 @@ import os
 import statistics
 import threading
 import uuid
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 SERVICE = "ASTRA_RENDER_EXECUTOR"
-VERSION = "1.3.1"
+VERSION = "1.4.0"
 MODE = "PRODUCTION_GATED"
 PORT = int(os.environ.get("PORT", "10000"))
 MAX_BODY = 65536
@@ -18,6 +20,9 @@ TEST_ACTIONS = {"RENDER_ECHO_TEST"} if ENABLE_TEST_ACTIONS else set()
 PRODUCTION_ACTIONS = {"RENDER_COMPUTE_V1"}
 PRODUCTION_TOKEN = os.environ.get("ASTRA_RENDER_EXECUTOR_TOKEN", "")
 TEST_TOKEN = os.environ.get("ASTRA_RENDER_TEST_TOKEN", "")
+EXTERNAL_SUPABASE_URL = os.environ.get("ASTRA_EXTERNAL_SUPABASE_URL", "").rstrip("/")
+EXTERNAL_SUPABASE_PUBLISHABLE_KEY = os.environ.get("ASTRA_EXTERNAL_SUPABASE_PUBLISHABLE_KEY", "")
+EXTERNAL_CLAIM_TIMEOUT_SECONDS = max(1.0, min(float(os.environ.get("ASTRA_EXTERNAL_CLAIM_TIMEOUT_SECONDS", "5")), 15.0))
 MAX_CONCURRENT_REQUESTS = max(1, min(int(os.environ.get("ASTRA_RENDER_MAX_CONCURRENT_REQUESTS", "16")), 64))
 REQUEST_SOCKET_TIMEOUT_SECONDS = max(1.0, min(float(os.environ.get("ASTRA_RENDER_REQUEST_TIMEOUT_SECONDS", "15")), 60.0))
 PRODUCTION_OPERATIONS = {
@@ -57,6 +62,38 @@ def fibonacci(n):
     for _ in range(n):
         a, b = b, a + b
     return a
+
+
+def claim_external_ticket(request):
+    if not EXTERNAL_SUPABASE_URL or not EXTERNAL_SUPABASE_PUBLISHABLE_KEY:
+        return False, "EXTERNAL_AUTH_NOT_CONFIGURED"
+    try:
+        payload_hash, _ = sha256_json(request["payload"])
+        body = json.dumps({
+            "p_ticket_id": str(request["job_id"]),
+            "p_fence_token": str(request["fence_token"]),
+            "p_effect_id": request["effect_id"],
+            "p_generation": int(request["generation"]),
+            "p_action_type": request["action_type"],
+            "p_payload_hash": payload_hash,
+        }, separators=(",", ":")).encode("utf-8")
+        http_request = urllib.request.Request(
+            EXTERNAL_SUPABASE_URL + "/rest/v1/rpc/astra_external_claim_ticket",
+            data=body,
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "apikey": EXTERNAL_SUPABASE_PUBLISHABLE_KEY,
+            },
+        )
+        with urllib.request.urlopen(http_request, timeout=EXTERNAL_CLAIM_TIMEOUT_SECONDS) as response:
+            raw = response.read(4096)
+        claimed = json.loads(raw.decode("utf-8"))
+        if claimed is True:
+            return True, None
+        return False, "EXTERNAL_TICKET_REJECTED"
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, json.JSONDecodeError):
+        return False, "EXTERNAL_TICKET_VALIDATION_FAILED"
 
 
 def _json_type_name(value):
@@ -202,7 +239,7 @@ def _validate_object(payload):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "ASTRA-Render-Executor/1.3.1"
+    server_version = "ASTRA-Render-Executor/1.4.0"
 
     def _json(self, code, body):
         data = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -341,6 +378,8 @@ class Handler(BaseHTTPRequestHandler):
             supplied_test = self.headers.get("X-ASTRA-TEST-TOKEN", "")
             if not TEST_TOKEN or not supplied_test or not hmac.compare_digest(supplied_test, TEST_TOKEN):
                 return self._json(403, {"ok": False, "error": "TEST_AUTH_FAILED"})
+        elif request_mode == "EXTERNAL":
+            pass
         else:
             return self._json(403, {"ok": False, "error": "MODE_REQUIRED"})
 
@@ -362,6 +401,11 @@ class Handler(BaseHTTPRequestHandler):
 
         action = request["action_type"]
 
+        if request_mode == "EXTERNAL":
+            claimed, claim_error = claim_external_ticket(request)
+            if not claimed:
+                return self._json(403, {"ok": False, "error": claim_error})
+
         if action in TEST_ACTIONS:
             if request_mode != "TEST_ONLY" or not request["effect_id"].startswith("TEST_ONLY_"):
                 return self._json(403, {"ok": False, "error": "TEST_MODE_REQUIRED"})
@@ -372,7 +416,7 @@ class Handler(BaseHTTPRequestHandler):
                 "mode": "TEST_ONLY",
             }
         elif action in PRODUCTION_ACTIONS:
-            if request_mode != "PRODUCTION":
+            if request_mode not in {"PRODUCTION", "EXTERNAL"}:
                 return self._json(403, {"ok": False, "error": "PRODUCTION_MODE_REQUIRED"})
             try:
                 result = self._production_output(request["payload"])
@@ -382,7 +426,7 @@ class Handler(BaseHTTPRequestHandler):
                 "result": result,
                 "executor": SERVICE,
                 "version": VERSION,
-                "mode": "PRODUCTION",
+                "mode": request_mode,
             }
         else:
             return self._json(403, {"ok": False, "error": "ACTION_NOT_ALLOWED"})
