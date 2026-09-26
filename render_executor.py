@@ -4,17 +4,22 @@ import json
 import math
 import os
 import statistics
+import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 SERVICE = "ASTRA_RENDER_EXECUTOR"
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 MODE = "PRODUCTION_GATED"
 PORT = int(os.environ.get("PORT", "10000"))
 MAX_BODY = 65536
-TEST_ACTIONS = {"RENDER_ECHO_TEST"}
+ENABLE_TEST_ACTIONS = os.environ.get("ASTRA_RENDER_ENABLE_TEST_ACTIONS", "").strip().lower() in {"1", "true", "yes", "on"}
+TEST_ACTIONS = {"RENDER_ECHO_TEST"} if ENABLE_TEST_ACTIONS else set()
 PRODUCTION_ACTIONS = {"RENDER_COMPUTE_V1"}
 PRODUCTION_TOKEN = os.environ.get("ASTRA_RENDER_EXECUTOR_TOKEN", "")
+TEST_TOKEN = os.environ.get("ASTRA_RENDER_TEST_TOKEN", "")
+MAX_CONCURRENT_REQUESTS = max(1, min(int(os.environ.get("ASTRA_RENDER_MAX_CONCURRENT_REQUESTS", "16")), 64))
+REQUEST_SOCKET_TIMEOUT_SECONDS = max(1.0, min(float(os.environ.get("ASTRA_RENDER_REQUEST_TIMEOUT_SECONDS", "15")), 60.0))
 PRODUCTION_OPERATIONS = {
     "BATCH_SHA256_JSON",
     "FIBONACCI",
@@ -197,7 +202,7 @@ def _validate_object(payload):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "ASTRA-Render-Executor/1.2.0"
+    server_version = "ASTRA-Render-Executor/1.3.0"
 
     def _json(self, code, body):
         data = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -218,10 +223,6 @@ class Handler(BaseHTTPRequestHandler):
                 "service": SERVICE,
                 "version": VERSION,
                 "mode": MODE,
-                "auth": "PRODUCTION_TOKEN_REQUIRED_FOR_PRODUCTION_ACTIONS",
-                "test_actions": sorted(TEST_ACTIONS),
-                "production_actions": sorted(PRODUCTION_ACTIONS),
-                "production_operations": sorted(PRODUCTION_OPERATIONS),
             })
         return self._json(404, {"ok": False, "error": "NOT_FOUND"})
 
@@ -318,6 +319,21 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/execute":
             return self._json(404, {"ok": False, "error": "NOT_FOUND"})
 
+        request_mode = self.headers.get("X-ASTRA-MODE", "")
+
+        if request_mode == "PRODUCTION":
+            supplied = self.headers.get("X-ASTRA-EXECUTOR-TOKEN", "")
+            if not PRODUCTION_TOKEN or not supplied or not hmac.compare_digest(supplied, PRODUCTION_TOKEN):
+                return self._json(403, {"ok": False, "error": "PRODUCTION_AUTH_FAILED"})
+        elif request_mode == "TEST_ONLY":
+            if not TEST_ACTIONS:
+                return self._json(403, {"ok": False, "error": "TEST_ACTIONS_DISABLED"})
+            supplied_test = self.headers.get("X-ASTRA-TEST-TOKEN", "")
+            if not TEST_TOKEN or not supplied_test or not hmac.compare_digest(supplied_test, TEST_TOKEN):
+                return self._json(403, {"ok": False, "error": "TEST_AUTH_FAILED"})
+        else:
+            return self._json(403, {"ok": False, "error": "MODE_REQUIRED"})
+
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
@@ -335,7 +351,6 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(400, {"ok": False, "error": identity_error})
 
         action = request["action_type"]
-        request_mode = self.headers.get("X-ASTRA-MODE", "")
 
         if action in TEST_ACTIONS:
             if request_mode != "TEST_ONLY" or not request["effect_id"].startswith("TEST_ONLY_"):
@@ -349,9 +364,6 @@ class Handler(BaseHTTPRequestHandler):
         elif action in PRODUCTION_ACTIONS:
             if request_mode != "PRODUCTION":
                 return self._json(403, {"ok": False, "error": "PRODUCTION_MODE_REQUIRED"})
-            supplied = self.headers.get("X-ASTRA-EXECUTOR-TOKEN", "")
-            if not PRODUCTION_TOKEN or not supplied or not hmac.compare_digest(supplied, PRODUCTION_TOKEN):
-                return self._json(403, {"ok": False, "error": "PRODUCTION_AUTH_FAILED"})
             try:
                 result = self._production_output(request["payload"])
             except ValueError as exc:
@@ -377,5 +389,31 @@ class Handler(BaseHTTPRequestHandler):
         })
 
 
+class BoundedThreadingHTTPServer(ThreadingHTTPServer):
+    daemon_threads = True
+    block_on_close = False
+    allow_reuse_address = True
+    request_queue_size = 64
+
+    def __init__(self, server_address, handler_cls):
+        super().__init__(server_address, handler_cls)
+        self._request_slots = threading.BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
+
+    def process_request(self, request, client_address):
+        self._request_slots.acquire()
+        try:
+            super().process_request(request, client_address)
+        except Exception:
+            self._request_slots.release()
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            request.settimeout(REQUEST_SOCKET_TIMEOUT_SECONDS)
+            super().process_request_thread(request, client_address)
+        finally:
+            self._request_slots.release()
+
+
 if __name__ == "__main__":
-    ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    BoundedThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
